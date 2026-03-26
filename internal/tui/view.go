@@ -21,7 +21,7 @@ func (m Model) View() string {
 	// Status
 	s.WriteString(StatusStyle.Render(fmt.Sprintf("Status: %s", m.Status)) + "\n\n")
 
-	// Findings
+	// Findings Table
 	if len(m.Results) == 0 {
 		if m.Scanning {
 			s.WriteString("Scanning for malicious agent deployments...\n")
@@ -30,22 +30,16 @@ func (m Model) View() string {
 		}
 	} else {
 		s.WriteString("DETECTED FINDINGS:\n")
-		for _, res := range m.Results {
-			sevStyle := SeverityMediumStyle
-			if res.Severity == "High" {
-				sevStyle = SeverityHighStyle
-			}
-
-			s.WriteString(fmt.Sprintf("%s [%s] %s -> %s\n",
-				sevStyle.Render(fmt.Sprintf("[%s]", strings.ToUpper(res.Severity))),
-				lipgloss.NewStyle().Foreground(SubtleColor).Render(res.Target),
-				res.Type,
-				res.Details,
-			))
-		}
+		s.WriteString(m.Table.View() + "\n")
 	}
 
-	s.WriteString("\n" + lipgloss.NewStyle().Foreground(SubtleColor).Render("Press 'q' or 'esc' to exit.") + "\n")
+	// Progress Bar
+	if m.Scanning {
+		s.WriteString("\n" + m.Progress.View() + "\n")
+	}
+
+	// Footer
+	s.WriteString("\n" + lipgloss.NewStyle().Foreground(SubtleColor).Render("Press 'q' or 'esc' to exit.") + " | " + lipgloss.NewStyle().Foreground(MainColor).Render("↑/↓: Navigate") + "\n")
 
 	return s.String()
 }

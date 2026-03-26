@@ -26,9 +26,27 @@ func (a *ActivityInk) Description() string {
 	return "Writes verbose, timestamped operational activity logs to a text file for development and auditing."
 }
 
-// Write is a no-op for findings (reserved for Results).
+// Write appends a finding to the log file.
 func (a *ActivityInk) Write(ctx context.Context, result models.Result) error {
-	return nil
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	f, err := os.OpenFile(a.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	logEntry := fmt.Sprintf("[%s] [FINDING] [%s] Severity: %s | Target: %s | %s",
+		result.Timestamp.Format(time.RFC3339),
+		result.Source,
+		result.Severity,
+		result.Target,
+		result.Details,
+	)
+
+	_, err = f.WriteString(logEntry + "\n")
+	return err
 }
 
 // Log appends an activity event to the log file.

@@ -1,13 +1,15 @@
 package tentacles
 
 import (
+	"time"
+
 	"github.com/codevalve/openbeak/internal/models"
 )
 
 // Global registry of all available tentacles and inks.
 var (
 	Hunters = []models.Tentacle{
-		&HTTPDiscoveryTentacle{Timeout: 2},
+		&HTTPDiscoveryTentacle{Timeout: 2 * time.Second},
 	}
 
 	Inks = []models.Ink{

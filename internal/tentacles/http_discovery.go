@@ -35,7 +35,7 @@ func (t *HTTPDiscoveryTentacle) Probe(ctx context.Context, target string) (model
 		Timeout: t.Timeout,
 	}
 
-	endpoints := []string{"/", "/health", "/api/v1/status", "/skills/list", "/config"}
+	endpoints := []string{"/api/v1/status", "/skills/list", "/config", "/health", "/"}
 
 	for _, endpoint := range endpoints {
 		req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s%s", target, endpoint), nil)
@@ -47,27 +47,54 @@ func (t *HTTPDiscoveryTentacle) Probe(ctx context.Context, target string) (model
 		if err != nil {
 			continue
 		}
-		defer resp.Body.Close()
 
-		// 1. Check for explicit Headers
-		if version := resp.Header.Get("X-OpenClaw-Version"); version != "" {
+		// 1. Check for explicit Headers (High Priority)
+		version := resp.Header.Get("X-OpenClaw-Version")
+		server := resp.Header.Get("Server")
+		statusCode := resp.StatusCode
+		_ = resp.Body.Close()
+
+		if version != "" {
 			return models.Result{
 				Target:    target,
 				Type:      "exposed_openclaw_instance",
 				Severity:  "High",
-				Details:   fmt.Sprintf("OpenClaw v%s detected via header at %s", version, endpoint),
+				Details:   fmt.Sprintf("OpenClaw v%s detected via header at %s (Server: %s)", version, endpoint, server),
 				Source:    t.Name(),
 				Timestamp: time.Now(),
 			}, nil
 		}
 
-		// 2. Check for endpoint presence
-		if resp.StatusCode == http.StatusOK {
+		// 2. Check for endpoint presence (Medium vs Low)
+		isSpecific := endpoint != "/" && endpoint != "/health"
+		if statusCode == http.StatusOK {
+			severity := "Low"
+			resType := "service_discovered"
+			details := fmt.Sprintf("Generic service found at %s (Server: %s)", endpoint, server)
+
+			if isSpecific {
+				severity = "Medium"
+				resType = "exposed_endpoint"
+				details = fmt.Sprintf("Specific OpenClaw endpoint accessible at %s (Server: %s)", endpoint, server)
+			}
+
 			return models.Result{
 				Target:    target,
-				Type:      "exposed_endpoint",
-				Severity:  "Medium",
-				Details:   fmt.Sprintf("Unauthenticated access to %s", endpoint),
+				Type:      resType,
+				Severity:  severity,
+				Details:   details,
+				Source:    t.Name(),
+				Timestamp: time.Now(),
+			}, nil
+		}
+
+		// 3. Reconnaissance (Low Priority)
+		if statusCode == http.StatusForbidden || statusCode == http.StatusUnauthorized {
+			return models.Result{
+				Target:    target,
+				Type:      "generic_server_found",
+				Severity:  "Low",
+				Details:   fmt.Sprintf("Server responded with %d at %s (Server: %s)", statusCode, endpoint, server),
 				Source:    t.Name(),
 				Timestamp: time.Now(),
 			}, nil

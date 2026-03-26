@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/codevalve/openbeak/internal/models"
@@ -12,10 +13,12 @@ import (
 // Coordinator manages the lifecycle of a scan operation.
 type Coordinator struct {
 	Workers   int
+	Inking    models.InkingLevel
 	Tentacles []models.Tentacle
 	Inks      []models.Ink
 	Results   chan models.Result
-	WaitGroup sync.WaitGroup
+	OnProgress func(float64) // Callback for progress updates
+	WaitGroup  sync.WaitGroup
 }
 
 // NewCoordinator initializes a new scan engine.
@@ -41,17 +44,24 @@ func (c *Coordinator) RegisterInk(i models.Ink) {
 // Scan targets using registered tentacles.
 func (c *Coordinator) Scan(ctx context.Context, targets []string) {
 	c.log(ctx, models.Info, "Starting scan operation", "")
+	total := len(targets)
+	var processed int32
 
 	targetChan := make(chan string, len(targets))
 
 	// Spawn workers
 	for i := 0; i < c.Workers; i++ {
 		c.WaitGroup.Add(1)
-		workerID := i
 		go func() {
 			defer c.WaitGroup.Done()
 			for target := range targetChan {
-				c.log(ctx, models.Debug, fmt.Sprintf("Worker %d probing target", workerID), target)
+				// Update progress
+				curr := atomic.AddInt32(&processed, 1)
+				if c.OnProgress != nil {
+					c.OnProgress(float64(curr) / float64(total))
+				}
+
+				c.log(ctx, models.Debug, "Probing target", target)
 				for _, t := range c.Tentacles {
 					select {
 					case <-ctx.Done():
@@ -59,11 +69,25 @@ func (c *Coordinator) Scan(ctx context.Context, targets []string) {
 					default:
 						res, err := t.Probe(ctx, target)
 						if err == nil {
-							c.Results <- res
-							// Dispatch to inks
-							for _, ink := range c.Inks {
-								_ = ink.Write(ctx, res)
+							// Filter findings based on InkingLevel
+							shouldFile := false
+							switch c.Inking {
+							case models.InkingStealth:
+								shouldFile = (res.Severity == "High")
+							case models.InkingTactical:
+								shouldFile = (res.Severity == "High" || res.Severity == "Medium")
+							case models.InkingVerbose:
+								shouldFile = true
 							}
+
+							if shouldFile {
+								c.Results <- res
+								for _, ink := range c.Inks {
+									_ = ink.Write(ctx, res)
+								}
+							}
+						} else if c.Inking == models.InkingVerbose {
+							c.log(ctx, models.Debug, fmt.Sprintf("%s: %v", t.Name(), err), target)
 						}
 					}
 				}
