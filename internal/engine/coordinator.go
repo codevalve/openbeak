@@ -2,7 +2,9 @@ package engine
 
 import (
 	"context"
+	"fmt"
 	"sync"
+	"time"
 
 	"github.com/codevalve/openbeak/internal/models"
 )
@@ -38,14 +40,18 @@ func (c *Coordinator) RegisterReporter(r models.Reporter) {
 
 // Scan targets using registered tentacles.
 func (c *Coordinator) Scan(ctx context.Context, targets []string) {
+	c.log(ctx, models.Info, "Starting scan operation", "")
+
 	targetChan := make(chan string, len(targets))
 
 	// Spawn workers
 	for i := 0; i < c.Workers; i++ {
 		c.WaitGroup.Add(1)
+		workerID := i
 		go func() {
 			defer c.WaitGroup.Done()
 			for target := range targetChan {
+				c.log(ctx, models.Debug, fmt.Sprintf("Worker %d probing target", workerID), target)
 				for _, t := range c.Tentacles {
 					select {
 					case <-ctx.Done():
@@ -73,5 +79,19 @@ func (c *Coordinator) Scan(ctx context.Context, targets []string) {
 
 	// Wait for workers to finish
 	c.WaitGroup.Wait()
+	c.log(ctx, models.Info, "Scan operation complete", "")
 	close(c.Results)
+}
+
+func (c *Coordinator) log(ctx context.Context, level models.ActivityLevel, msg string, target string) {
+	event := models.ActivityEvent{
+		Timestamp: time.Now(),
+		Level:     level,
+		Component: "engine",
+		Message:   msg,
+		Target:    target,
+	}
+	for _, r := range c.Reporters {
+		_ = r.Log(ctx, event)
+	}
 }

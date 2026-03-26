@@ -25,8 +25,6 @@ func (r *JSONReporter) Write(ctx context.Context, result models.Result) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// Simplistic implementation: read all, append, write back
-	// In a high-volume scenario, we'd use a buffered writer or a live stream
 	var results []models.Result
 	data, err := os.ReadFile(r.FilePath)
 	if err == nil {
@@ -40,4 +38,9 @@ func (r *JSONReporter) Write(ctx context.Context, result models.Result) error {
 	}
 
 	return os.WriteFile(r.FilePath, out, 0644)
+}
+
+// Log is currently not implemented for the JSON results reporter.
+func (r *JSONReporter) Log(ctx context.Context, event models.ActivityEvent) error {
+	return nil
 }

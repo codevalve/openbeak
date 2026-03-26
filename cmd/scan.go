@@ -36,6 +36,11 @@ var scanCmd = &cobra.Command{
 			FilePath: "openbeak_results.json",
 		})
 
+		// Register Activity Logger
+		coord.RegisterReporter(&tentacles.ActivityLogger{
+			FilePath: "openbeak_activity.log",
+		})
+
 		// 3. Load Targets (Mock for now or read from file)
 		targets := []string{"localhost:8080", "127.0.0.1:3000"}
 		if targetFile != "" {

@@ -1,0 +1,4 @@
+[2026-03-26T12:56:39-05:00] [INFO] [engine] Starting scan operation
+[2026-03-26T12:56:39-05:00] [DEBUG] [engine] Worker 0 probing target (Target: localhost:8080)
+[2026-03-26T12:56:39-05:00] [DEBUG] [engine] Worker 0 probing target (Target: 127.0.0.1:3000)
+[2026-03-26T12:56:39-05:00] [INFO] [engine] Scan operation complete
