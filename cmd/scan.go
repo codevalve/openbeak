@@ -31,8 +31,8 @@ var scanCmd = &cobra.Command{
 			coord.RegisterTentacle(h)
 		}
 
-		for _, r := range tentacles.Reporters {
-			coord.RegisterReporter(r)
+		for _, i := range tentacles.Inks {
+			coord.RegisterInk(i)
 		}
 
 		// 3. Load Targets (Mock for now or read from file)

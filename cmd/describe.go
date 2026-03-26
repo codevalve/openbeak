@@ -10,16 +10,16 @@ import (
 
 var describeCmd = &cobra.Command{
 	Use:   "describe [name]",
-	Short: "Provide documentation for a specific tentacle or reporter",
+	Short: "Provide documentation for a specific hunter or ink",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			fmt.Println("Available Hunters:")
 			for _, h := range tentacles.Hunters {
 				fmt.Printf(" - %-20s %s\n", h.Name(), h.Description())
 			}
-			fmt.Println("\nAvailable Reporters:")
-			for _, r := range tentacles.Reporters {
-				fmt.Printf(" - %-20s %s\n", r.Name(), r.Description())
+			fmt.Println("\nAvailable Inks:")
+			for _, i := range tentacles.Inks {
+				fmt.Printf(" - %-20s %s\n", i.Name(), i.Description())
 			}
 			return
 		}
@@ -32,10 +32,10 @@ var describeCmd = &cobra.Command{
 			return
 		}
 
-		if r := tentacles.GetReporter(name); r != nil {
-			fmt.Printf("Name:        %s\n", r.Name())
-			fmt.Printf("Role:        Reporter\n")
-			fmt.Printf("Description: %s\n", r.Description())
+		if i := tentacles.GetInk(name); i != nil {
+			fmt.Printf("Name:        %s\n", i.Name())
+			fmt.Printf("Role:        Ink\n")
+			fmt.Printf("Description: %s\n", i.Description())
 			return
 		}
 

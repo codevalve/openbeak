@@ -15,7 +15,7 @@ Welcome, Comrade Agent! You are helping build **OpenBeak**, a blazing-fast, stea
 ### 📂 Core Module: `internal/`
 - **`tentacles/`**: Modular logic units categorized by function:
     - **Hunters**: Discovery, fingerprinting, and probing for misconfigurations.
-    - **Reporters**: Exporting data to JSON, logs, or external platforms.
+    - **Inks**: Tactical data export, logging, and SIEM integration.
     - **Beaks**: Remediation, patching, and neutralizing rogue agent instances.
 - **`engine/`**: The core concurrent scanner execution and coordination logic.
 

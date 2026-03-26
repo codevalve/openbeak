@@ -13,7 +13,7 @@ import (
 type Coordinator struct {
 	Workers   int
 	Tentacles []models.Tentacle
-	Reporters []models.Reporter
+	Inks      []models.Ink
 	Results   chan models.Result
 	WaitGroup sync.WaitGroup
 }
@@ -24,7 +24,7 @@ func NewCoordinator(workers int) *Coordinator {
 		Workers:   workers,
 		Results:   make(chan models.Result, 100),
 		Tentacles: []models.Tentacle{},
-		Reporters: []models.Reporter{},
+		Inks:      []models.Ink{},
 	}
 }
 
@@ -33,9 +33,9 @@ func (c *Coordinator) RegisterTentacle(t models.Tentacle) {
 	c.Tentacles = append(c.Tentacles, t)
 }
 
-// RegisterReporter adds a reporting module to the engine.
-func (c *Coordinator) RegisterReporter(r models.Reporter) {
-	c.Reporters = append(c.Reporters, r)
+// RegisterInk adds a reporting module to the engine.
+func (c *Coordinator) RegisterInk(i models.Ink) {
+	c.Inks = append(c.Inks, i)
 }
 
 // Scan targets using registered tentacles.
@@ -60,9 +60,9 @@ func (c *Coordinator) Scan(ctx context.Context, targets []string) {
 						res, err := t.Probe(ctx, target)
 						if err == nil {
 							c.Results <- res
-							// Dispatch to reporters
-							for _, r := range c.Reporters {
-								_ = r.Write(ctx, res)
+							// Dispatch to inks
+							for _, ink := range c.Inks {
+								_ = ink.Write(ctx, res)
 							}
 						}
 					}
@@ -91,7 +91,7 @@ func (c *Coordinator) log(ctx context.Context, level models.ActivityLevel, msg s
 		Message:   msg,
 		Target:    target,
 	}
-	for _, r := range c.Reporters {
-		_ = r.Log(ctx, event)
+	for _, i := range c.Inks {
+		_ = i.Log(ctx, event)
 	}
 }

@@ -16,8 +16,8 @@ Used by IBM QRadar.
 JSON-based, used by Graylog and ELK stacks.
 
 ## v1.1.0 Goals
-- [ ] Implement `CEFReporter` for `internal/tentacles`.
-- [ ] Implement `SyslogReporter` (RFC 5424).
+- [ ] Implement `CEFInk` for `internal/tentacles`.
+- [ ] Implement `SyslogInk` (RFC 5424).
 - [ ] Support custom TCP/UDP sinks for live streaming.
 
 ## Alerting mapping

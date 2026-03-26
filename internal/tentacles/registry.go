@@ -4,15 +4,15 @@ import (
 	"github.com/codevalve/openbeak/internal/models"
 )
 
-// Global registry of all available tentacles and reporters.
+// Global registry of all available tentacles and inks.
 var (
 	Hunters = []models.Tentacle{
 		&HTTPDiscoveryTentacle{Timeout: 2},
 	}
 
-	Reporters = []models.Reporter{
-		&JSONReporter{FilePath: "openbeak_results.json"},
-		&ActivityLogger{FilePath: "openbeak_activity.log"},
+	Inks = []models.Ink{
+		&JSONInk{FilePath: "openbeak_results.json"},
+		&ActivityInk{FilePath: "openbeak_activity.log"},
 	}
 )
 
@@ -26,11 +26,11 @@ func GetTentacle(name string) models.Tentacle {
 	return nil
 }
 
-// GetReporter returns a reporter by name.
-func GetReporter(name string) models.Reporter {
-	for _, r := range Reporters {
-		if r.Name() == name {
-			return r
+// GetInk returns an ink by name.
+func GetInk(name string) models.Ink {
+	for _, i := range Inks {
+		if i.Name() == name {
+			return i
 		}
 	}
 	return nil
