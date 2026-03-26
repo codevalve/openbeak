@@ -11,6 +11,7 @@ import (
 type Coordinator struct {
 	Workers   int
 	Tentacles []models.Tentacle
+	Reporters []models.Reporter
 	Results   chan models.Result
 	WaitGroup sync.WaitGroup
 }
@@ -18,14 +19,21 @@ type Coordinator struct {
 // NewCoordinator initializes a new scan engine.
 func NewCoordinator(workers int) *Coordinator {
 	return &Coordinator{
-		Workers: workers,
-		Results: make(chan models.Result, 100),
+		Workers:   workers,
+		Results:   make(chan models.Result, 100),
+		Tentacles: []models.Tentacle{},
+		Reporters: []models.Reporter{},
 	}
 }
 
 // RegisterTentacle adds a scanning module to the engine.
 func (c *Coordinator) RegisterTentacle(t models.Tentacle) {
 	c.Tentacles = append(c.Tentacles, t)
+}
+
+// RegisterReporter adds a reporting module to the engine.
+func (c *Coordinator) RegisterReporter(r models.Reporter) {
+	c.Reporters = append(c.Reporters, r)
 }
 
 // Scan targets using registered tentacles.
@@ -46,6 +54,10 @@ func (c *Coordinator) Scan(ctx context.Context, targets []string) {
 						res, err := t.Probe(ctx, target)
 						if err == nil {
 							c.Results <- res
+							// Dispatch to reporters
+							for _, r := range c.Reporters {
+								_ = r.Write(ctx, res)
+							}
 						}
 					}
 				}

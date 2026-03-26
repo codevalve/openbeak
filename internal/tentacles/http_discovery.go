@@ -35,27 +35,43 @@ func (t *HTTPDiscoveryTentacle) Probe(ctx context.Context, target string) (model
 		Timeout: t.Timeout,
 	}
 
-	// Example: Probing the /health endpoint
-	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s/health", target), nil)
-	if err != nil {
-		return models.Result{}, err
-	}
+	endpoints := []string{"/", "/health", "/api/v1/status", "/skills/list", "/config"}
 
-	resp, err := client.Do(req)
-	if err != nil {
-		return models.Result{}, err
-	}
-	defer resp.Body.Close()
+	for _, endpoint := range endpoints {
+		req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s%s", target, endpoint), nil)
+		if err != nil {
+			continue
+		}
 
-	if resp.StatusCode == http.StatusOK {
-		return models.Result{
-			Target:    target,
-			Type:      "exposed_health_endpoint",
-			Severity:  "Medium",
-			Details:   "Health endpoint responded with 200 OK",
-			Source:    t.Name(),
-			Timestamp: time.Now(),
-		}, nil
+		resp, err := client.Do(req)
+		if err != nil {
+			continue
+		}
+		defer resp.Body.Close()
+
+		// 1. Check for explicit Headers
+		if version := resp.Header.Get("X-OpenClaw-Version"); version != "" {
+			return models.Result{
+				Target:    target,
+				Type:      "exposed_openclaw_instance",
+				Severity:  "High",
+				Details:   fmt.Sprintf("OpenClaw v%s detected via header at %s", version, endpoint),
+				Source:    t.Name(),
+				Timestamp: time.Now(),
+			}, nil
+		}
+
+		// 2. Check for endpoint presence
+		if resp.StatusCode == http.StatusOK {
+			return models.Result{
+				Target:    target,
+				Type:      "exposed_endpoint",
+				Severity:  "Medium",
+				Details:   fmt.Sprintf("Unauthenticated access to %s", endpoint),
+				Source:    t.Name(),
+				Timestamp: time.Now(),
+			}, nil
+		}
 	}
 
 	return models.Result{}, fmt.Errorf("no signature found")

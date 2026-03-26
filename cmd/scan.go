@@ -31,6 +31,11 @@ var scanCmd = &cobra.Command{
 			Timeout: 2, // 2 seconds
 		})
 
+		// Register JSON Reporter
+		coord.RegisterReporter(&tentacles.JSONReporter{
+			FilePath: "openbeak_results.json",
+		})
+
 		// 3. Load Targets (Mock for now or read from file)
 		targets := []string{"localhost:8080", "127.0.0.1:3000"}
 		if targetFile != "" {
