@@ -13,7 +13,10 @@ Welcome, Comrade Agent! You are helping build **OpenBeak**, a blazing-fast, stea
 ## 🏗️ Architecture Guide
 
 ### 📂 Core Module: `internal/`
-- **`tentacles/`**: The individual scanner modules ("tentacles") that probe target OpenClaw networks.
+- **`tentacles/`**: Modular logic units categorized by function:
+    - **Hunters**: Discovery, fingerprinting, and probing for misconfigurations.
+    - **Reporters**: Exporting data to JSON, logs, or external platforms.
+    - **Beaks**: Remediation, patching, and neutralizing rogue agent instances.
 - **`engine/`**: The core concurrent scanner execution and coordination logic.
 
 ### 🕹️ TUI: `internal/tui/`

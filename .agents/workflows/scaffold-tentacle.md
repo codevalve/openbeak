@@ -40,6 +40,10 @@ func (t *<Name>Tentacle) Description() string {
 	return "Probes for specific OpenClaw misconfigurations..."
 }
 
+func (t *<Name>Tentacle) Role() string {
+	return "Hunter" // Must be Hunter, Reporter, or Beak
+}
+
 func (t *<Name>Tentacle) Probe(ctx context.Context, target string) (Result, error) {
 	// Tentacle logic here: fast, highly concurrent, stealthy network calls
 	return Result{}, nil
