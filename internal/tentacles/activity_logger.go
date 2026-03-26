@@ -21,6 +21,11 @@ func (a *ActivityLogger) Name() string {
 	return "activity_logger"
 }
 
+// Description returns a summary of the reporter's purpose.
+func (a *ActivityLogger) Description() string {
+	return "Writes verbose, timestamped operational activity logs to a text file for development and auditing."
+}
+
 // Write is a no-op for findings (reserved for Results).
 func (a *ActivityLogger) Write(ctx context.Context, result models.Result) error {
 	return nil

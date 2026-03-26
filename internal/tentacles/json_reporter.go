@@ -20,6 +20,11 @@ func (r *JSONReporter) Name() string {
 	return "json_reporter"
 }
 
+// Description returns a summary of the reporter's purpose.
+func (r *JSONReporter) Description() string {
+	return "Exports all discovery findings to a structured JSON file for automation/SIEM integration."
+}
+
 // Write appends a single result to the JSON file.
 func (r *JSONReporter) Write(ctx context.Context, result models.Result) error {
 	r.mu.Lock()

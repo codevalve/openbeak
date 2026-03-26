@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-// Tentacle defines the functional interface for all scanner modules.
+// Tentacle represents a modular scanning unit in OpenBeak.
 type Tentacle interface {
 	Name() string
-	Description() string
 	Role() string // Must return Hunter, Reporter, or Beak
+	Description() string
 	Probe(ctx context.Context, target string) (Result, error)
 }
 

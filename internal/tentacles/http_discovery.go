@@ -9,7 +9,7 @@ import (
 	"github.com/codevalve/openbeak/internal/models"
 )
 
-// HTTPDiscoveryTentacle probes for exposed OpenClaw API signatures.
+// HTTPDiscoveryTentacle probes for exposed agent infrastructure.
 type HTTPDiscoveryTentacle struct {
 	Timeout time.Duration
 }
@@ -19,14 +19,14 @@ func (t *HTTPDiscoveryTentacle) Name() string {
 	return "http_discovery"
 }
 
-// Description returns what this tentacle does.
-func (t *HTTPDiscoveryTentacle) Description() string {
-	return "Probes for exposed OpenClaw API signatures and health endpoints."
-}
-
 // Role returns the functional category.
 func (t *HTTPDiscoveryTentacle) Role() string {
 	return "Hunter"
+}
+
+// Description returns a summary of the tentacle's purpose.
+func (t *HTTPDiscoveryTentacle) Description() string {
+	return "Probes for exposed OpenClaw instances by checking common endpoints (/, /health, /api, /skills) and identifying version headers."
 }
 
 // Probe execution logic for a target.

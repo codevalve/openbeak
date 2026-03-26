@@ -27,19 +27,13 @@ var scanCmd = &cobra.Command{
 
 		// 2. Initialize Engine
 		coord := engine.NewCoordinator(workers)
-		coord.RegisterTentacle(&tentacles.HTTPDiscoveryTentacle{
-			Timeout: 2, // 2 seconds
-		})
+		for _, h := range tentacles.Hunters {
+			coord.RegisterTentacle(h)
+		}
 
-		// Register JSON Reporter
-		coord.RegisterReporter(&tentacles.JSONReporter{
-			FilePath: "openbeak_results.json",
-		})
-
-		// Register Activity Logger
-		coord.RegisterReporter(&tentacles.ActivityLogger{
-			FilePath: "openbeak_activity.log",
-		})
+		for _, r := range tentacles.Reporters {
+			coord.RegisterReporter(r)
+		}
 
 		// 3. Load Targets (Mock for now or read from file)
 		targets := []string{"localhost:8080", "127.0.0.1:3000"}
