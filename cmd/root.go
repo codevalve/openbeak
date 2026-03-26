@@ -7,24 +7,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "0.0.1"
-
 var rootCmd = &cobra.Command{
 	Use:   "openbeak",
-	Short: "OpenBeak: A stealthy white-hat predator for hunting malicious OpenClaw deployments.",
-	Long: `OpenBeak (Macroctopus Agentaculum) is a blazing-fast, concurrent scanner 
-designed to probe and neutralize malicious or misconfigured OpenClaw instances. 
-
-Built with Go and the Charmbracelet TUI stack for a premium, stealthy terminal experience.`,
+	Short: "OpenBeak is a stealthy white-hat security tool for hunting malicious agents",
+	Long: `A blazing-fast, concurrent predator written in Go that hunts 
+exposed or misconfigured AI agent deployments (OpenClaw).`,
 }
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-func init() {
-	// Root flags and global configurations can be defined here if needed.
 }
