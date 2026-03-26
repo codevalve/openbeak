@@ -34,3 +34,25 @@ Written in **Go** for high performance, excellent concurrency (perfect for multi
 - Excellent networking and security libraries
 - Memory safety and performance ideal for long-running threat hunting
 
+## Building & Contributing
+
+We welcome contributions from security researchers, Go enthusiasts, and octopus fans.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code style, and how to add new “tentacle” modules.
+
+## License
+
+Licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.  
+This is a strong copyleft license that encourages sharing improvements while making it difficult for the code to be used in closed-source commercial products.
+
+See the [LICENSE](LICENSE) file for the full text.
+
+## Disclaimer
+
+OpenBeak is intended **only** for authorized security testing and defensive operations on systems you own or have explicit permission to scan. Unauthorized use is illegal and against the spirit of the project.
+
+---
+
+**Inspired by nature’s most clever predator.**  
+🐙 **Macroctopus Agentaculum** — reaching where claws hide.
+
