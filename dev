@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# dev: A simple helper script for OpenBeak developers.
+# Ensures we work in a controlled environment.
+
+# Build and run the TUI
+if [ "$1" == "tui" ]; then
+    go run main.go
+    exit 0
+fi
+
+# Run tests with coverage
+if [ "$1" == "test" ]; then
+    go test -v -cover ./...
+    exit 0
+fi
+
+# List available tentacles
+if [ "$1" == "list" ]; then
+    go run main.go tentacles list
+    exit 0
+fi
+
+echo "OpenBeak Dev Helper"
+echo "Usage: ./dev [tui|test|list]"
